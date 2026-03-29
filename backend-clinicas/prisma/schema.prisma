@@ -1,0 +1,49 @@
+// ─── Prisma Schema ── backend-clinicas ────────────────────────────
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model clinicas_odonto_ce {
+  id                  Int       @id @default(autoincrement())
+  cnpj                String    @unique @db.VarChar
+  cnpj_formatado      String?   @db.VarChar
+  razao_social        String?
+  nome_fantasia       String?
+  nome                String?
+  email               String?
+  telefone1           String?
+  telefone2           String?
+  socio_nome          String?
+  socio_cpf_cnpj      String?
+  socio_qualificacao  String?
+  socio_email         String?
+  socio_telefone      String?
+  tipo_logradouro     String?   @db.VarChar
+  logradouro          String?
+  numero              String?   @db.VarChar
+  complemento         String?
+  bairro              String?
+  cep                 String?   @db.VarChar
+  municipio           String?
+  uf                  String?   @default("CE") @db.Char(2)
+  cnae_principal      String?   @db.VarChar
+  situacao_cadastral  String?   @db.VarChar
+  data_abertura       DateTime? @db.Date
+  porte               String?   @db.VarChar
+  natureza_juridica   String?
+  status_prospeccao   String?   @default("novo")
+  canal_contato       String?
+  anotacoes           String?
+  data_ultimo_contato DateTime? @db.Timestamp(6)
+  responsavel         String?
+  fonte               String?   @default("receita_federal")
+  criado_em           DateTime? @default(now()) @db.Timestamp(6)
+  atualizado_em       DateTime? @default(now()) @db.Timestamp(6)
+}
