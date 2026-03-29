@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: clinicas-backend
     restart: unless-stopped
+    expose:
+      - "3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -14,9 +16,9 @@ services:
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
   # ─── Frontend (Vite + React → Nginx) ─────────────────────
   frontend:
@@ -27,6 +29,8 @@ services:
         - VITE_API_URL=
     container_name: clinicas-frontend
     restart: unless-stopped
+    expose:
+      - "80"
     depends_on:
       backend:
-        condition: service_healthy
+        condition: service_started
