@@ -79,9 +79,9 @@ export function ClinicaTable({ clinicas, loading, onSelect }: ClinicaTableProps)
                   <p className="font-medium text-sm truncate max-w-[260px]">
                     {c.nome_fantasia || c.razao_social || "—"}
                   </p>
-                  {c.bairro && (
+                  {c.municipio && (
                     <p className="text-xs text-muted-foreground truncate">
-                      {c.bairro}
+                      {c.municipio}
                     </p>
                   )}
                 </div>

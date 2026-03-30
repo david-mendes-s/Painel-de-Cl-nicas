@@ -102,10 +102,19 @@ export function ClinicaDialog({
             <Building2 className="h-5 w-5 text-primary" />
             {clinica.nome_fantasia || clinica.razao_social || "Clínica"}
           </DialogTitle>
-          <DialogDescription className="flex items-center gap-2">
+          <DialogDescription className="flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs">
               CNPJ: {clinica.cnpj_formatado || clinica.cnpj}
             </span>
+            {clinica.municipio && (
+              <>
+                <span>•</span>
+                <span className="flex items-center gap-1 text-xs">
+                  <MapPin className="h-3 w-3" />
+                  {clinica.municipio}{clinica.uf ? ` - ${clinica.uf}` : ""}
+                </span>
+              </>
+            )}
             <span>•</span>
             <StatusBadge status={clinica.status_prospeccao} />
           </DialogDescription>
