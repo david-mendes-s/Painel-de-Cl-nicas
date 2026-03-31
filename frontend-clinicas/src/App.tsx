@@ -6,6 +6,7 @@ import { StatsCards } from "@/components/stats-cards";
 import { ClinicaFilters } from "@/components/clinica-filters";
 import { ClinicaTable } from "@/components/clinica-table";
 import { ClinicaDialog } from "@/components/clinica-dialog";
+import { EmailDialog } from "@/components/email-dialog";
 import { Pagination } from "@/components/pagination";
 import {
   fetchClinicas,
@@ -31,6 +32,10 @@ function Dashboard() {
   // Dialog
   const [selectedClinica, setSelectedClinica] = useState<Clinica | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+
+  // Email Dialog
+  const [emailClinica, setEmailClinica] = useState<Clinica | null>(null);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   const loadStats = useCallback(async () => {
     setStatsLoading(true);
@@ -103,6 +108,11 @@ function Dashboard() {
     loadStats();
   };
 
+  const handleSendEmail = (clinica: Clinica) => {
+    setEmailClinica(clinica);
+    setEmailDialogOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -146,6 +156,7 @@ function Dashboard() {
           clinicas={result?.data || []}
           loading={tableLoading}
           onSelect={handleSelect}
+          onSendEmail={handleSendEmail}
         />
 
         {/* Pagination */}
@@ -166,6 +177,17 @@ function Dashboard() {
         onOpenChange={handleDialogOpen}
         onUpdated={handleUpdated}
       />
+
+      {/* Email Dialog */}
+      {emailClinica?.email && (
+        <EmailDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          toEmail={emailClinica.email}
+          clinicaNome={emailClinica.nome_fantasia || emailClinica.razao_social || "Clínica"}
+          clinicaCidade={emailClinica.municipio || "sua região"}
+        />
+      )}
     </div>
   );
 }

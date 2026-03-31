@@ -132,3 +132,27 @@ export const STATUS_COLORS: Record<string, string> = {
   cliente: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
   descartado: "bg-red-500/15 text-red-700 dark:text-red-300",
 };
+
+export interface SendEmailPayload {
+  to: string;
+  subject: string;
+  body: string;
+  clinicaNome: string;
+  senderName?: string;
+  isHtml?: boolean;
+}
+
+export async function sendEmail(
+  payload: SendEmailPayload
+): Promise<{ success: boolean; messageId?: string; message: string }> {
+  const res = await fetch(`${API_BASE}/email/send`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Erro ${res.status}`);
+  }
+  return res.json();
+}

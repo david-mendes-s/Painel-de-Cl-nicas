@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { prisma } from "./lib/prisma";
 import clinicasRouter from "./routes/clinicas";
+import emailRouter from "./routes/email";
 
 const app = express();
 const port = Number(process.env.PORT || 3000);
@@ -35,6 +36,7 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/clinicas", clinicasRouter);
+app.use("/email", emailRouter);
 
 // ─── Inicialização ─────────────────────────────────────────────
 const server = app.listen(port, () => {
@@ -44,6 +46,7 @@ const server = app.listen(port, () => {
   console.log(`   GET  /clinicas/:id`);
   console.log(`   PATCH /clinicas/:id`);
   console.log(`   GET  /clinicas/stats/overview`);
+  console.log(`   POST /email/send`);
 });
 
 const shutdown = async () => {

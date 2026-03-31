@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { EmailDialog } from "@/components/email-dialog";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ import {
   MapPin,
   User,
   Save,
+  Send,
   Loader2,
   Calendar,
   FileText,
@@ -50,6 +52,7 @@ export function ClinicaDialog({
   const [anotacoes, setAnotacoes] = useState("");
   const [responsavel, setResponsavel] = useState("");
   const [saving, setSaving] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   // Sync form state when a new clinica is selected or dialog opens
   useEffect(() => {
@@ -96,7 +99,7 @@ export function ClinicaDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl w-[95vw] md:w-[80vw] max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-lg">
             <Building2 className="h-5 w-5 text-primary" />
@@ -137,6 +140,15 @@ export function ClinicaDialog({
                   >
                     {clinica.email}
                   </a>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs text-blue-500 hover:text-blue-600 gap-1"
+                    onClick={() => setEmailDialogOpen(true)}
+                  >
+                    <Send className="h-3 w-3" />
+                    Enviar
+                  </Button>
                 </div>
               )}
               {clinica.telefone1 && (
@@ -309,6 +321,17 @@ export function ClinicaDialog({
           </div>
         </div>
       </DialogContent>
+
+      {/* Email Dialog */}
+      {clinica.email && (
+        <EmailDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          toEmail={clinica.email}
+          clinicaNome={clinica.nome_fantasia || clinica.razao_social || "Clínica"}
+          clinicaCidade={clinica.municipio || "sua região"}
+        />
+      )}
     </Dialog>
   );
 }

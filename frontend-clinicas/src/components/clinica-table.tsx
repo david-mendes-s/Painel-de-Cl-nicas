@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/status-badge";
-import { Phone, Mail, ExternalLink } from "lucide-react";
+import { Phone, Mail, ExternalLink, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Clinica } from "@/lib/api";
 
@@ -15,9 +15,10 @@ interface ClinicaTableProps {
   clinicas: Clinica[];
   loading: boolean;
   onSelect: (c: Clinica) => void;
+  onSendEmail?: (c: Clinica) => void;
 }
 
-export function ClinicaTable({ clinicas, loading, onSelect }: ClinicaTableProps) {
+export function ClinicaTable({ clinicas, loading, onSelect, onSendEmail }: ClinicaTableProps) {
   if (loading) {
     return (
       <div className="rounded-lg border border-border/50 overflow-hidden">
@@ -28,7 +29,7 @@ export function ClinicaTable({ clinicas, loading, onSelect }: ClinicaTableProps)
               <TableHead className="w-[160px]">CNPJ</TableHead>
               <TableHead>Contato</TableHead>
               <TableHead className="w-[140px]">Status</TableHead>
-              <TableHead className="w-[100px]">Ações</TableHead>
+              <TableHead className="w-[120px]">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -111,16 +112,33 @@ export function ClinicaTable({ clinicas, loading, onSelect }: ClinicaTableProps)
                 <StatusBadge status={c.status_prospeccao} />
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onSelect(c);
-                  }}
-                >
-                  <ExternalLink className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  {c.email && onSendEmail && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10"
+                      title={`Enviar email para ${c.email}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSendEmail(c);
+                      }}
+                    >
+                      <Send className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(c);
+                    }}
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
