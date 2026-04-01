@@ -21,10 +21,7 @@ function buildEmailHtml(options: {
   // Se isHtml, injeta direto; senão, escapa, linkifica URLs e converte quebras de linha
   let bodyHtml = isHtml
     ? body
-    : body
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    : body.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   if (!isHtml) {
     // 1. Transforma botões MarkDown [BOTÃO: texto](url) e links [texto](url)
@@ -36,13 +33,13 @@ function buildEmailHtml(options: {
           return `<div style="margin: 30px 0;"><a href="${url}" target="_blank" style="background-color: #25D366; color: #ffffff !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">${btnText}</a></div>`;
         }
         return `<a href="${url}" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: 500;">${text}</a>`;
-      }
+      },
     );
 
     // 2. Transforma URLs brutas perdidas (que não viraram tag <a> acima) em links
     bodyHtml = bodyHtml.replace(
       /(^|[^="'>])(https?:\/\/[^\s<]+)/g,
-      '$1<a href="$2" target="_blank" style="color: #007bff; text-decoration: underline;">$2</a>'
+      '$1<a href="$2" target="_blank" style="color: #007bff; text-decoration: underline;">$2</a>',
     );
 
     // 3. Converte quebras de linha em BR
@@ -57,7 +54,7 @@ function buildEmailHtml(options: {
     <style>
         body { margin: 0; padding: 0; background-color: #f8f9fa; font-family: 'Segoe UI', Arial, sans-serif; }
         .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; margin-top: 20px; }
-        .header { background-color: #1a1a1a; padding: 30px; text-align: center; }
+        .header { background-color: #3c3c3c; padding: 30px; text-align: center; }
         .content { padding: 40px; color: #333333; line-height: 1.6; }
         .footer { background-color: #f1f1f1; padding: 20px; text-align: center; font-size: 12px; color: #777777; }
     </style>
@@ -65,7 +62,7 @@ function buildEmailHtml(options: {
 <body>
     <div class="container">
         <div class="header">
-            <h1 style="color: #ffffff; margin: 0; font-size: 24px;">DevBoost</h1>
+            <img src="https://devboost.com.br/assets/email/logo-email.png" alt="DevBoost" width="200" style="display: block; margin: 0 auto; max-width: 100%; border: 0;" />
         </div>
 
         <div class="content">
