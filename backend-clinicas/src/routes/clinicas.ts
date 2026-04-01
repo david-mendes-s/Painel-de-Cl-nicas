@@ -4,6 +4,26 @@ import { prisma } from "../lib/prisma";
 const router = Router();
 
 /**
+ * GET /clinicas/cidades
+ * Retorna lista de cidades distintas cadastradas no banco (em ordem alfabética)
+ */
+router.get("/cidades", async (req, res) => {
+  try {
+    const result = await prisma.$queryRaw<Array<{ municipio: string }>>`
+      SELECT DISTINCT municipio 
+      FROM clinicas_odonto_ce 
+      WHERE municipio IS NOT NULL AND municipio != '' 
+      ORDER BY municipio ASC
+    `;
+    const data = result.map((r) => r.municipio);
+    return res.json({ data });
+  } catch (error) {
+    console.error("Erro ao listar cidades:", error);
+    return res.status(500).json({ error: "Erro interno ao listar cidades" });
+  }
+});
+
+/**
  * GET /clinicas/com-email
  * Lista clínicas que possuem email (não nulo e não vazio)
  */
@@ -97,6 +117,7 @@ router.get("/stats/overview", async (_req, res) => {
  *   search    - busca em nome_fantasia, razao_social, cnpj, email
  *   municipio - filtro por município
  *   status    - filtro por status_prospeccao
+ *   idadeCnpj - filtro por tempo de empresa (menos_1_ano, de_1_a_3_anos, mais_3_anos)
  *   orderBy   - campo de ordenação (default: id)
  *   order     - asc|desc (default: asc)
  */
@@ -109,6 +130,7 @@ router.get("/", async (req, res) => {
     const search = (req.query.search as string) || "";
     const municipio = (req.query.municipio as string) || "";
     const status = (req.query.status as string) || "";
+    const idadeCnpj = (req.query.idadeCnpj as string) || "";
     const comEmail = req.query.comEmail === "true";
     const orderBy = (req.query.orderBy as string) || "id";
     const order = (req.query.order as string) === "desc" ? "desc" : "asc";
@@ -132,6 +154,25 @@ router.get("/", async (req, res) => {
 
     if (status) {
       where.status_prospeccao = status;
+    }
+
+    if (idadeCnpj) {
+      const getIsoDate = (yearsAgo: number) => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - yearsAgo);
+        return new Date(d.toISOString().split("T")[0]); // Zera hora para ISO 'YYYY-MM-DD'
+      };
+
+      const date1YearAgo = getIsoDate(1);
+      const date3YearsAgo = getIsoDate(3);
+
+      if (idadeCnpj === "menos_1_ano") {
+        where.data_abertura = { gte: date1YearAgo };
+      } else if (idadeCnpj === "de_1_a_3_anos") {
+        where.data_abertura = { gte: date3YearsAgo, lt: date1YearAgo };
+      } else if (idadeCnpj === "mais_3_anos") {
+        where.data_abertura = { lt: date3YearsAgo };
+      }
     }
 
     if (comEmail) {

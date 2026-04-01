@@ -11,6 +11,7 @@ import { Pagination } from "@/components/pagination";
 import {
   fetchClinicas,
   fetchStats,
+  fetchCidades,
   type Clinica,
   type StatsResponse,
   type PaginatedResponse,
@@ -26,8 +27,11 @@ function Dashboard() {
   // Filters
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [municipioFilter, setMunicipioFilter] = useState("all");
+  const [idadeCnpjFilter, setIdadeCnpjFilter] = useState("all");
   const [comEmail, setComEmail] = useState(false);
   const [page, setPage] = useState(1);
+  const [cidades, setCidades] = useState<string[]>([]);
 
   // Dialog
   const [selectedClinica, setSelectedClinica] = useState<Clinica | null>(null);
@@ -40,10 +44,14 @@ function Dashboard() {
   const loadStats = useCallback(async () => {
     setStatsLoading(true);
     try {
-      const data = await fetchStats();
+      const [data, cidadesData] = await Promise.all([
+        fetchStats(),
+        fetchCidades()
+      ]);
       setStats(data);
+      setCidades(cidadesData.data);
     } catch (err) {
-      console.error("Erro ao carregar stats:", err);
+      console.error("Erro ao carregar stats/cidades:", err);
     } finally {
       setStatsLoading(false);
     }
@@ -57,6 +65,8 @@ function Dashboard() {
         limit: 15,
         search: search || undefined,
         status: statusFilter !== "all" ? statusFilter : undefined,
+        municipio: municipioFilter !== "all" ? municipioFilter : undefined,
+        idadeCnpj: idadeCnpjFilter !== "all" ? idadeCnpjFilter : undefined,
         comEmail,
       });
       setResult(data);
@@ -65,7 +75,7 @@ function Dashboard() {
     } finally {
       setTableLoading(false);
     }
-  }, [page, search, statusFilter, comEmail]);
+  }, [page, search, statusFilter, municipioFilter, idadeCnpjFilter, comEmail]);
 
   useEffect(() => {
     loadStats();
@@ -82,6 +92,16 @@ function Dashboard() {
 
   const handleStatusFilterChange = (value: string) => {
     setStatusFilter(value);
+    setPage(1);
+  };
+
+  const handleMunicipioFilterChange = (value: string) => {
+    setMunicipioFilter(value);
+    setPage(1);
+  };
+
+  const handleIdadeCnpjFilterChange = (value: string) => {
+    setIdadeCnpjFilter(value);
     setPage(1);
   };
 
@@ -146,6 +166,11 @@ function Dashboard() {
           onSearchChange={setSearch}
           statusFilter={statusFilter}
           onStatusFilterChange={handleStatusFilterChange}
+          municipioFilter={municipioFilter}
+          onMunicipioFilterChange={handleMunicipioFilterChange}
+          idadeCnpjFilter={idadeCnpjFilter}
+          onIdadeCnpjFilterChange={handleIdadeCnpjFilterChange}
+          cidades={cidades}
           comEmail={comEmail}
           onComEmailChange={handleComEmailChange}
           onSearch={handleSearch}

@@ -6,7 +6,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { STATUS_OPTIONS } from "@/lib/api";
 
@@ -15,6 +14,11 @@ interface ClinicaFiltersProps {
   onSearchChange: (v: string) => void;
   statusFilter: string;
   onStatusFilterChange: (v: string) => void;
+  municipioFilter: string;
+  onMunicipioFilterChange: (v: string) => void;
+  idadeCnpjFilter: string;
+  onIdadeCnpjFilterChange: (v: string) => void;
+  cidades: string[];
   comEmail: boolean;
   onComEmailChange: (v: boolean) => void;
   onSearch: () => void;
@@ -25,6 +29,11 @@ export function ClinicaFilters({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
+  municipioFilter,
+  onMunicipioFilterChange,
+  idadeCnpjFilter,
+  onIdadeCnpjFilterChange,
+  cidades,
   comEmail,
   onComEmailChange,
   onSearch,
@@ -45,15 +54,54 @@ export function ClinicaFilters({
 
       {/* Filtro de Status */}
       <Select value={statusFilter} onValueChange={(v) => onStatusFilterChange(v ?? "all")}>
-        <SelectTrigger className="w-full sm:w-[180px]">
-          <Filter className="h-4 w-4 mr-2 text-muted-foreground" />
-          <SelectValue placeholder="Todos os status" />
+        <SelectTrigger className="w-full sm:w-[170px]">
+          <Filter className="h-4 w-4 mr-2 shrink-0 text-muted-foreground" />
+          <span className="truncate flex-1 text-left">
+            {statusFilter === "all" ? "Todos os Status" : STATUS_OPTIONS.find(s => s.value === statusFilter)?.label || "Status"}
+          </span>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Todos os status</SelectItem>
+          <SelectItem value="all">Todos os Status</SelectItem>
           {STATUS_OPTIONS.map((s) => (
             <SelectItem key={s.value} value={s.value}>
               {s.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Filtro de Idade CNPJ */}
+      <Select value={idadeCnpjFilter} onValueChange={(v) => onIdadeCnpjFilterChange(v ?? "all")}>
+        <SelectTrigger className="w-full sm:w-[170px]">
+          <Filter className="h-4 w-4 mr-2 shrink-0 text-muted-foreground" />
+          <span className="truncate flex-1 text-left">
+            {idadeCnpjFilter === "all" ? "Qualquer Idade" : 
+             idadeCnpjFilter === "menos_1_ano" ? "Menos de 1 ano" : 
+             idadeCnpjFilter === "de_1_a_3_anos" ? "De 1 a 3 anos" : 
+             idadeCnpjFilter === "mais_3_anos" ? "Mais de 3 anos" : "Idade"}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Qualquer Idade</SelectItem>
+          <SelectItem value="menos_1_ano">Menos de 1 ano</SelectItem>
+          <SelectItem value="de_1_a_3_anos">De 1 a 3 anos</SelectItem>
+          <SelectItem value="mais_3_anos">Mais de 3 anos</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Filtro de Cidades */}
+      <Select value={municipioFilter} onValueChange={(v) => onMunicipioFilterChange(v ?? "all")}>
+        <SelectTrigger className="w-full sm:w-[170px]">
+          <Filter className="h-4 w-4 mr-2 shrink-0 text-muted-foreground" />
+          <span className="truncate flex-1 text-left">
+            {municipioFilter === "all" ? "Todas as Cidades" : municipioFilter}
+          </span>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Todas as Cidades</SelectItem>
+          {cidades.map((cidade) => (
+            <SelectItem key={cidade} value={cidade}>
+              {cidade}
             </SelectItem>
           ))}
         </SelectContent>

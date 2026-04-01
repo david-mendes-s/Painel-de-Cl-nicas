@@ -60,6 +60,7 @@ export interface FetchClinicasParams {
   search?: string;
   municipio?: string;
   status?: string;
+  idadeCnpj?: string;
   comEmail?: boolean;
   orderBy?: string;
   order?: "asc" | "desc";
@@ -75,6 +76,7 @@ export async function fetchClinicas(
   if (params.search) searchParams.set("search", params.search);
   if (params.municipio) searchParams.set("municipio", params.municipio);
   if (params.status) searchParams.set("status", params.status);
+  if (params.idadeCnpj) searchParams.set("idadeCnpj", params.idadeCnpj);
   if (params.comEmail) searchParams.set("comEmail", "true");
   if (params.orderBy) searchParams.set("orderBy", params.orderBy);
   if (params.order) searchParams.set("order", params.order);
@@ -92,6 +94,12 @@ export async function fetchClinica(id: number): Promise<{ data: Clinica }> {
 
 export async function fetchStats(): Promise<StatsResponse> {
   const res = await fetch(`${API_BASE}/clinicas/stats/overview`);
+  if (!res.ok) throw new Error(`Erro ${res.status}`);
+  return res.json();
+}
+
+export async function fetchCidades(): Promise<{ data: string[] }> {
+  const res = await fetch(`${API_BASE}/clinicas/cidades`);
   if (!res.ok) throw new Error(`Erro ${res.status}`);
   return res.json();
 }

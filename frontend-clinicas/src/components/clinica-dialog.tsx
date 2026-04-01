@@ -189,7 +189,15 @@ export function ClinicaDialog({
               </h4>
               <div className="flex items-start gap-2 text-sm">
                 <MapPin className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-                <span>{endereco}</span>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(endereco)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline hover:text-blue-500 transition-colors"
+                  title="Abrir no Google Maps"
+                >
+                  {endereco}
+                </a>
               </div>
             </div>
           )}
