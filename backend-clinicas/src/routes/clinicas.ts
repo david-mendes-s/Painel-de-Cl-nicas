@@ -212,6 +212,116 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ * POST /clinicas/export
+ * Exporta clínicas para CSV, respeitando os filtros e selecionando apenas os campos desejados.
+ */
+router.post("/export", async (req, res) => {
+  try {
+    const filters = req.body.filters || {};
+    const search = filters.search || "";
+    const municipio = filters.municipio || "";
+    const status = filters.status || "";
+    const idadeCnpj = filters.idadeCnpj || "";
+    const comEmail = filters.comEmail === true;
+
+    // Monta filtro dinâmico
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        { nome_fantasia: { contains: search, mode: "insensitive" } },
+        { razao_social: { contains: search, mode: "insensitive" } },
+        { cnpj: { contains: search } },
+        { email: { contains: search, mode: "insensitive" } },
+        { telefone1: { contains: search } },
+      ];
+    }
+
+    if (municipio) {
+      where.municipio = { equals: municipio, mode: "insensitive" };
+    }
+
+    if (status) {
+      where.status_prospeccao = status;
+    }
+
+    if (idadeCnpj) {
+      const getIsoDate = (yearsAgo: number) => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - yearsAgo);
+        return new Date(d.toISOString().split("T")[0]);
+      };
+
+      const date1YearAgo = getIsoDate(1);
+      const date3YearsAgo = getIsoDate(3);
+
+      if (idadeCnpj === "menos_1_ano") {
+        where.data_abertura = { gte: date1YearAgo };
+      } else if (idadeCnpj === "de_1_a_3_anos") {
+        where.data_abertura = { gte: date3YearsAgo, lt: date1YearAgo };
+      } else if (idadeCnpj === "mais_3_anos") {
+        where.data_abertura = { lt: date3YearsAgo };
+      }
+    }
+
+    if (comEmail) {
+      where.AND = [
+        ...(where.AND || []),
+        { email: { not: null } },
+        { email: { not: "" } },
+      ];
+    }
+
+    const requestedFields: string[] = Array.isArray(req.body.fields) && req.body.fields.length > 0
+      ? req.body.fields
+      : ["id", "cnpj", "razao_social"];
+
+    const fieldsToSelect = requestedFields.reduce((acc, f) => ({ ...acc, [f]: true }), {});
+
+    const clinicas = await prisma.clinicas_odonto_ce.findMany({
+      where,
+      select: fieldsToSelect,
+      orderBy: { id: "asc" },
+    });
+
+    const csvRows = [];
+    // Header
+    csvRows.push(requestedFields.join(","));
+
+    // Linhas
+    for (const clinica of clinicas) {
+      const row = requestedFields.map(field => {
+        let val = (clinica as any)[field];
+        if (val === null || val === undefined) val = "";
+        
+        if (val instanceof Date) {
+          val = val.toISOString();
+        }
+
+        const stringVal = String(val);
+        // Escapar de aspas, quebras de linha e vírgulas
+        if (stringVal.includes(',') || stringVal.includes('"') || stringVal.includes('\n') || stringVal.includes('\r')) {
+          return `"${stringVal.replace(/"/g, '""')}"`;
+        }
+        return stringVal;
+      });
+      csvRows.push(row.join(","));
+    }
+
+    const csvContent = csvRows.join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="exportacao_clinicas.csv"');
+    
+    // Retornamos raw text
+    return res.status(200).send(csvContent);
+  } catch (error) {
+    console.error("Erro na exportação CSV:", error);
+    return res.status(500).json({ error: "Erro interno na exportação de clínicas" });
+  }
+});
+
+/**
  * GET /clinicas/:id
  * Busca uma clínica por ID
  */

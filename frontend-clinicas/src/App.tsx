@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
-import { Stethoscope } from "lucide-react";
+import { FileDown, Stethoscope } from "lucide-react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 import { StatsCards } from "@/components/stats-cards";
 import { ClinicaFilters } from "@/components/clinica-filters";
 import { ClinicaTable } from "@/components/clinica-table";
 import { ClinicaDialog } from "@/components/clinica-dialog";
 import { EmailDialog } from "@/components/email-dialog";
+import { SettingsDialog } from "@/components/settings-dialog";
 import { Pagination } from "@/components/pagination";
 import {
   fetchClinicas,
@@ -40,6 +42,9 @@ function Dashboard() {
   // Email Dialog
   const [emailClinica, setEmailClinica] = useState<Clinica | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+
+  // Settings / Export
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const loadStats = useCallback(async () => {
     setStatsLoading(true);
@@ -151,7 +156,12 @@ function Dashboard() {
               </p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" title="Exportar Dados" onClick={() => setSettingsOpen(true)}>
+              <FileDown className="h-5 w-5" />
+            </Button>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
@@ -213,6 +223,19 @@ function Dashboard() {
           clinicaCidade={emailClinica.municipio || "sua região"}
         />
       )}
+
+      {/* Settings Dialog (CSV Export) */}
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        filters={{
+          search,
+          statusFilter,
+          municipioFilter,
+          idadeCnpjFilter,
+          comEmail,
+        }}
+      />
     </div>
   );
 }
